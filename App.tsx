@@ -111,3 +111,31 @@ const App: React.FC = () => {
 };
 
 export default App;
+import { useEffect, useState } from 'react';
+import Papa from 'papaparse'; // For CSV parsing (add to package.json if needed)
+
+// Load CSV
+const [metrics, setMetrics] = useState({});
+
+useEffect(() => {
+  fetch('/pigeon-forge-data.csv')
+    .then(response => response.text())
+    .then(csvText => {
+      const parsed = Papa.parse(csvText, { header: true });
+      const data = {};
+      parsed.data.forEach(row => {
+        data[row.Metric] = row.Value;
+      });
+      setMetrics(data);
+    });
+}, []);
+
+// Update metrics in your dashboard
+const occ = metrics['Average Occupancy Rate'] || '64';
+const adr = metrics['Average Daily Rate (ADR)'] || '227';
+const monthly = metrics['Average Monthly Revenue'] || '4,567';
+
+// Replace st.metric with your UI (e.g., in DashboardView)
+<div className="metric">Occupancy Rate: {occ}%</div>
+<div className="metric">RevPAR: ${adr}</div>
+<div className="metric">Est. Monthly Revenue: ${monthly}</div>
